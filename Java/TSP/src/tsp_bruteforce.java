@@ -12,9 +12,9 @@ public class tsp_bruteforce {
 				{7, 6, 9, 6, Integer.MAX_VALUE}
 		};
 		
-		int starting = 1;
+		int starting = 0;
 		
-		int[] nodes = {1,2,3,4,5};
+		int[] nodes = {0,1,2,3,4};
 
 		calcRoute(graph,starting,nodes);
 	}
@@ -31,8 +31,7 @@ public class tsp_bruteforce {
 			int[] visited1 = setAdd(starting,loop1);
 			int dist1 = graph[starting][loop1];
 			int[] unvisited1 = setDiff(nodes, visited1);
-			System.out.println("nodes: "+Arrays.toString(nodes)+", visited1: "+Arrays.toString(visited1)+", unvisited1: "+Arrays.toString(unvisited1));
-			for(int j=0; i<unvisited1.length; j++) {
+			for(int j=0; j<unvisited1.length; j++) {
 				int loop2 = unvisited1[j];
 				int[] visited2 = setAdd(visited1,loop2);
 				int dist2 = dist1 + graph[loop1][loop2];
@@ -49,10 +48,10 @@ public class tsp_bruteforce {
 						int overall = dist4 + graph[loop4][starting];
 						if(overall < min_dist) {
 							min_dist = overall;
-							best_route = setAdd(visited4,1);
+							best_route = setAdd(visited4,starting);
 						}
 						count++;
-						System.out.println("Soln "+count+", Distance: "+dist4+graph[loop4][starting]);
+						System.out.println("Soln "+count+", Distance: "+overall);
 					}
 				}
 			}
@@ -79,39 +78,32 @@ public class tsp_bruteforce {
 	public static int[] setDiff(int[] nodes1, int[] nodes2) {
 		int[] output = new int[1];
 		int idx_count = 0;
-		int jstart = 0;
-		for(int i=0; i<nodes1.length; i++) {
-			for(int j=0; j<nodes2.length; j++) {
-				if(nodes1[i]==nodes2[j]) {
-					System.out.println(nodes2[j]);
-					nodes2 = removeTheElement(nodes2,j);
-					break;
-				} else {
-					if(idx_count==0) {
-						output[0] = nodes1[i];
-						idx_count++;
-						//System.out.println(Arrays.toString(output));
-						break;
-					}
-					output = setAdd(output,nodes1[i]);
-					//System.out.println(Arrays.toString(output));
-					break;
-				}
-			}
-			
+		for(int i=0; i<nodes1.length; i++) {			
 			if(nodes2.length==0) {
-				System.out.println(i);
 				if(idx_count==0) {
 					output[0] = nodes1[i];
 					idx_count++;
-					break;
+					continue;
 				}
 				output = setAdd(output,nodes1[i]);
-				break;
+				continue;
 			}
-			//System.out.println(Arrays.toString(output));	
+			
+			for(int j=0; j<nodes2.length; j++) {
+				if(nodes1[i]==nodes2[j]) {
+					nodes2 = removeTheElement(nodes2,j);
+					break;
+				}
+				if(j==nodes2.length-1) {
+					if(idx_count==0) {
+						output[0] = nodes1[i];
+						idx_count++;
+					} else {
+						output = setAdd(output,nodes1[i]);
+					}
+				}
+			}
 		}
-		System.out.println(Arrays.toString(output));
 		return output;
 	}
 	
@@ -133,7 +125,7 @@ public class tsp_bruteforce {
 		return output;
 	}
 	
-	// Function to remove the element 
+	// Remove an element from an array
     public static int[] removeTheElement(int[] arr, 
                                           int index) 
     { 
