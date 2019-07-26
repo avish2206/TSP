@@ -6,10 +6,42 @@ Created on Fri Jul 26 02:56:40 2019
 """
 import numpy as np
 
+class Path:
+    
+    def __init__(self, graph,starting):
+        self.graph = graph;
+        self.starting = starting
+        self.nodes = list(range(0,len(graph[0])))
+        self.count = 0
+        self.best_route = []
+        self.min_dist = np.inf
+
+def bruteForce(path, visited, unvisited, dist):
+    if len(unvisited)==1:
+        overall = dist + path.graph[visited[-1]][unvisited[0]] + path.graph[unvisited[0]][path.starting]
+        temp_visited = visited + unvisited
+        if int(overall) < path.min_dist:
+            path.min_dist = overall
+            path.best_route = temp_visited + [starting]
+        path.count += 1
+        print("Solution %d: Distance %d"%(path.count,overall))
+    elif (len(unvisited)==len(path.nodes)-1):
+        for loop in unvisited:
+            temp_dist = path.graph[starting][loop]
+            temp_visited = [path.starting,loop]
+            temp_unvisited = [x for x in path.nodes if x not in temp_visited]
+            bruteForce(path,temp_visited,temp_unvisited,temp_dist)
+    else:
+        for loop in unvisited:
+            temp_dist = dist + path.graph[visited[-1]][loop]
+            temp_visited = visited + [loop]
+            temp_unvisited = [x for x in path.nodes if x not in temp_visited]
+            bruteForce(path,temp_visited,temp_unvisited,temp_dist)
+        
 def printRoute(route):
     for i in route:
         print(i, end=", ")
-
+    print('\n')
 
 # CHANGE THESE - - - - - - - - - - - - - - - -
 # distance matrix
@@ -22,34 +54,10 @@ graph = np.array([[np.nan, 10, 8, 9, 7],
 starting = 0  
 # - - - - - - - - - - - - - - - - - - - - - - -
 
-nodes = [0,1,2,3,4] # list of nodes
-
-count = 0
-min_dist = np.inf
-unvisited0 = [x for x in nodes if x!=starting]
-for loop1 in unvisited0:
-    visited1 = [starting, loop1]
-    dist1 = graph[starting][loop1]
-    unvisited1 = [x for x in nodes if x not in visited1]
-    for loop2 in unvisited1:
-        visited2 = visited1 + [loop2] 
-        dist2 = dist1+graph[loop1][loop2]
-        unvisited2 = [x for x in nodes if x not in visited2]
-        for loop3 in unvisited2:
-            visited3 = visited2 + [loop3] 
-            dist3 = dist2+graph[loop2][loop3]
-            unvisited3 = [x for x in nodes if x not in visited3]
-            for loop4 in unvisited3:
-                visited4 = visited3 + [loop4]
-                dist4 = dist3 + graph[loop3][loop4]
-                overall = dist4 + graph[loop4][starting]
-                if overall < min_dist:
-                   min_dist = overall
-                   best_route = visited4 + [starting]
-                count+=1
-                print('Soln %d %d' % (count,overall))
-print("min distance route: %d" %min_dist)
-
-printSet(best_route)
-
-
+path = Path(graph,starting) 
+dist = 0
+visited = [starting]
+unvisited = [x for x in path.nodes if x not in visited]
+bruteForce(path, visited, unvisited, dist)
+print(path.best_route)
+print(path.min_dist)
