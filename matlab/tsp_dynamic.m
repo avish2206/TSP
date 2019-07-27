@@ -35,7 +35,7 @@ for i = 1:size(dist,2)
        dist(:,i) =dist(:,i-1)+graph(starting,:)';
        min_dist = min(dist(:,i));
        idx = find(dist(:,i)==min_dist);
-       route = starting;
+       route = [starting,idx];
        next = prev(idx,i-1);
        for j = i-2:-1:1
            route = [route, next];
