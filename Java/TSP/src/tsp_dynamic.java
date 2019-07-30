@@ -41,14 +41,14 @@ public class tsp_dynamic {
 	
 	// Calculate route using dynamic programming
 	public static void calcRoute(int[][] graph,int starting, int[] nodes, int[][] dist, int[][] prev, int[] unvisited) {
-		for(int i: nodes) {
+		for(int i=0; i<nodes.length; i++) {
 			
 			if(i==0) {
 				for(int loop: unvisited) {
 					dist[loop][i] = graph[loop][starting];
 				}
 			
-			} else if (i==nodes[nodes.length-1]) {
+			} else if (i==nodes.length-1) {
 				int minval = Integer.MAX_VALUE;
 				int idx    = -1;
 				for (int j=0; j<nodes.length; j++) {
