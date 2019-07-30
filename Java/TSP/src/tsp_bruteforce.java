@@ -1,9 +1,32 @@
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 public class tsp_bruteforce {
+	
+	public static class Path{
+		public int [][] graph;
+		public int start;
+		public int[] nodes;
+		public int count;
+		public int[] best_route;
+		public int min_dist;
+		
+		public Path(int[][] graph, int start) {
+			this.graph = graph;
+			this.start = start;
+
+			this.count = 0;
+			this.best_route = new int[graph.length];
+			this.min_dist = Integer.MAX_VALUE;
+			
+			this.nodes = new int[graph.length];
+			for(int i=0; i<graph.length; i++) {
+				this.nodes[i] = i;
+			}
+		}
+	}
+	
 	public static void main(String[] args) {
+		
 		int[][] graph = {
 				{Integer.MAX_VALUE, 10, 8, 9, 7},
 				{10, Integer.MAX_VALUE, 10, 5, 6},
@@ -14,50 +37,44 @@ public class tsp_bruteforce {
 		
 		int starting = 0;
 		
-		int[] nodes = {0,1,2,3,4};
-
-		calcRoute(graph,starting,nodes);
+		Path myPath = new Path(graph,starting);
+		
+		int[] visited = {starting};
+		int[] unvisited = setDiff(myPath.nodes,starting);
+		int dist = 0;
+		
+		calcRoute(myPath,visited,unvisited,dist);
+		System.out.println(Arrays.toString(myPath.best_route));
+		System.out.println("MINUMUM DISTANCE: "+myPath.min_dist);
 	}
 	
 	
 	// Calculate route using brute force (check every single solution)
-	public static void calcRoute(int[][] graph, int starting, int[] nodes) {
-		int count = 0;
-		int min_dist = Integer.MAX_VALUE;
-		int[] unvisited0 = setDiff(nodes,starting);
-		int[] best_route = new int[nodes.length+1];
-		for(int i=0; i<unvisited0.length; i++) {
-			int loop1 = unvisited0[i];
-			int[] visited1 = setAdd(starting,loop1);
-			int dist1 = graph[starting][loop1];
-			int[] unvisited1 = setDiff(nodes, visited1);
-			for(int j=0; j<unvisited1.length; j++) {
-				int loop2 = unvisited1[j];
-				int[] visited2 = setAdd(visited1,loop2);
-				int dist2 = dist1 + graph[loop1][loop2];
-				int[] unvisited2 = setDiff(nodes, visited2);
-				for(int k=0; k<unvisited2.length; k++) {
-					int loop3 = unvisited2[k];
-					int[] visited3 = setAdd(visited2,loop3);
-					int dist3 = dist2 + graph[loop2][loop3];
-					int[] unvisited3 = setDiff(nodes, visited3);
-					for(int l=0; l<unvisited3.length; l++) {
-						int loop4 = unvisited3[l];
-						int[] visited4 = setAdd(visited3,loop4);
-						int dist4 = dist3 + graph[loop3][loop4];
-						int overall = dist4 + graph[loop4][starting];
-						if(overall < min_dist) {
-							min_dist = overall;
-							best_route = setAdd(visited4,starting);
-						}
-						count++;
-						System.out.println("Soln "+count+", Distance: "+overall);
-					}
-				}
+	public static void calcRoute(Path myPath, int[] visited, int[] unvisited, int dist) {
+		if (unvisited.length == 1) {
+			int overall = dist + myPath.graph[visited[visited.length-1]][unvisited[0]] + myPath.graph[unvisited[0]][myPath.start];
+			int[] temp_visited = setAdd(visited,unvisited[0]);
+			if(overall < myPath.min_dist) {
+				myPath.min_dist = overall;
+				myPath.best_route = setAdd(temp_visited,myPath.start);
+			}
+			myPath.count++;
+			System.out.println("Solution "+myPath.count+": Distance = "+ overall);
+		} else if (unvisited.length == myPath.nodes.length-1) {
+			for(int loop : unvisited) {
+				int temp_dist = myPath.graph[myPath.start][loop];
+				int[] temp_visited = {myPath.start, loop};
+				int[] temp_unvisited = setDiff(myPath.nodes, temp_visited);
+				calcRoute(myPath,temp_visited,temp_unvisited,temp_dist);
+			}
+		} else {
+			for(int loop : unvisited) {
+				int temp_dist = dist + myPath.graph[visited[visited.length-1]][loop];
+				int[] temp_visited = setAdd(visited,loop);
+				int[] temp_unvisited = setDiff(myPath.nodes, temp_visited);
+				calcRoute(myPath,temp_visited,temp_unvisited,temp_dist);
 			}
 		}
-		
-		System.out.println("BEST ROUTE: "+ Arrays.toString(best_route)+", DISTANCE: "+min_dist);
 		
 	}
 	
